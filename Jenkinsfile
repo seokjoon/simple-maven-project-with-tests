@@ -1,8 +1,5 @@
 node('master') {
-
-	stage('Preparation') {
-    		git 'https://github.com/seokjoon/simple-maven-project-with-tests.git'
-	}
+	checkout scm
 	stage('Build') {
     		withMaven(maven: 'M3') {
 			if(isUnix()) {
@@ -13,7 +10,7 @@ node('master') {
 		}
 	}
 	stage('Results') {
-		unit '**/target/surefire-report/TEST-*.xml'
+		junit '**/target/surefire-reports/TEST-*.xml'
 		archive 'target/*.jar'
 	}
 }
