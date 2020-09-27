@@ -1,9 +1,19 @@
-podTemplate(label: BUILD_TAG, containers: [containerTemplate(name: 'maven', image: 'maven', command: 'sleep', args: 'infinity')]) {
-  node(BUILD_TAG) {
-    checkout scm
-    container('maven') {
-      sh 'mvn -B -ntp -Dmaven.test.failure.ignore verify'
-    }
-    junit '**/target/surefire-reports/TEST-*.xml'
-  }
+node('master') {
+
+	stage('Preparation') {
+    		git 'https://github.com/seokjoon/simple-maven-project-with-tests.git'
+	}
+	stage('Build') {
+    		withMaven(maven: 'M3') {
+			if(isUnix()) {
+				sh 'mvn -Dmaven.test.failure.ignore clean package'
+			} else {
+				bat 'mvn -Dmaven.test.failure.ignore clean package'
+			}
+		}
+	}
+	stage('Results') {
+		unit '**/target/surefire-report/TEST-*.xml'
+		archive 'target/*.jar'
+	}
 }
